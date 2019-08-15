@@ -154,9 +154,10 @@ reminder.hears(/.+/, (ctx) => {
     ctx.reply(`Listo, te recordaré todos los días a las 10AM del standup del equipo '${group.name}'`);
 
     // TODO: set job
+
+    ctx.scene.leave();
   } else {
     ctx.reply('Lo siento, no entendí tu respuesta');
-    ctx.scene.leave();
   }
 });
 
