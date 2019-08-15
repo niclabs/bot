@@ -1,49 +1,25 @@
 const scheduler = require('node-schedule');
-const Group = require('./group');
 
 class User {
   constructor(ctx) {
     this.id = ctx.from.id;
     this.name = ctx.from.username;
-    this.groups = {};
-
-    // Join the given context
-    this.join(ctx);
+    this.jobs = {};
+    this.ctx = ctx;
   }
 
-  join(ctx) {
-    if (ctx.chat && ctx.chat.id !== this.id) {
-      this.groups[ctx.chat.id] = new Group(ctx);
-    } else {
-      this.ctx = ctx;
-    }
+  reply(msg, extra = {}) {
+    this.ctx.sendMessage(this.id, msg, { parse_mode: 'Markdown', ...extra });
   }
 
-  leave(ctx) {
-    if (ctx.chat && ctx.chat.id !== this.id && ctx.chat.id && this.groups) {
-      delete this.groups[ctx.chat.id];
+  // Schedule function to run in times set by the given rul
+  // see https://www.npmjs.com/package/node-schedule
+  schedule(label, rule, fn) {
+    if (label in this.jobs) {
+      this.jobs[label].cancel();
     }
-  }
-
-  replyToGroup(id, msg, extra = {}) {
-    if (id in this.groups) {
-      this.groups[id].reply(msg, extra);
-    }
-  }
-
-  replyToUser(msg, extra = {}) {
-    if (this.ctx) {
-      this.ctx.reply(msg, { parse_mode: 'Markdown', ...extra });
-    } else {
-      console.error(`Could not send message for user @${this.name}. Private context not set`);
-    }
-  }
-
-  schedule(rule, fn) {
-    if (this.job) {
-      this.job.cancel();
-    }
-    this.job = scheduler.scheduleJob(rule, fn);
+    this.jobs[label] = scheduler.scheduleJob(rule, fn);
+    return this.jobs[label];
   }
 }
 
