@@ -1,3 +1,5 @@
+const Markup = require('telegraf/markup');
+
 // Format given date or return current date formatted
 // as yyyy-mm-dd
 function strdate(when = new Date()) {
@@ -21,4 +23,31 @@ const nomarkdown = (s) => s
 
 const isPrivateContext = (ctx) => !ctx.chat || ctx.chat.id === ctx.from.id;
 
-module.exports = { strdate, nomarkdown, isPrivateContext };
+
+const showGroupSelector = (ctx, msg = 'Escoge un grupo') => {
+  const { groups } = ctx.session;
+
+  if (!groups || Object.keys(groups).length === 0) {
+    return false;
+  }
+
+  ctx.reply(
+    msg,
+    Markup.keyboard([Object.keys(groups).map((id) => groups[id].name)])
+      .resize()
+      .oneTime()
+      .extra(),
+  );
+
+  return true;
+};
+
+const findGroupByName = (ctx, name) => {
+  const { groups } = ctx.session;
+
+  return Object.keys(groups)
+    .map((id) => groups[id])
+    .find((group) => group.name === name);
+};
+
+module.exports = { strdate, nomarkdown, isPrivateContext, showGroupSelector, findGroupByName };

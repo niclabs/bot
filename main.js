@@ -2,12 +2,13 @@ const Telegraf = require('telegraf');
 const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
 const Markup = require('telegraf/markup');
-const Scene = require('telegraf/scenes/base');
 
 const { leave } = Stage;
 
 const User = require('./user');
 const Group = require('./group');
+const getReminderScene = require('./reminder');
+
 const { isPrivateContext } = require('./utils');
 
 const { TELEGRAM_TOKEN } = process.env;
@@ -78,32 +79,6 @@ const performCommandInPrivate = (ctx, cmd = () => {}) => {
   }
 };
 
-const showGroupSelector = (ctx, msg = 'Escoge un grupo') => {
-  const { groups } = ctx.session;
-
-  if (!groups || Object.keys(groups).length === 0) {
-    return false;
-  }
-
-  ctx.reply(
-    msg,
-    Markup.keyboard([Object.keys(groups).map((id) => groups[id].name)])
-      .resize()
-      .oneTime()
-      .extra(),
-  );
-
-  return true;
-};
-
-const findGroupByName = (ctx, name) => {
-  const { groups } = ctx.session;
-
-  return Object.keys(groups)
-    .map((id) => groups[id])
-    .find((group) => group.name === name);
-};
-
 const welcome = (ctx) => {
   register(ctx);
 
@@ -113,60 +88,12 @@ const welcome = (ctx) => {
   );
 };
 
-// Greeter scene
-const reminder = new Scene('reminder');
-reminder.enter((ctx) => {
-  const { group } = ctx.session;
-
-  if (group) {
-    ctx.reply(
-      `Voy configurar un recordatorio para el equipo '${group.name}. ¿Está bien?'`,
-      Markup.keyboard([['👍 ok', '👎 me arrepentí']])
-        .resize()
-        .oneTime()
-        .extra(),
-    );
-  } else if (!showGroupSelector(ctx, 'Escoge un grupo para el recordatorio')) {
-    ctx.reply(
-      'Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando /reminder desde un grupo en donde yo esté',
-    );
-    ctx.scene.leave();
-  }
-});
-reminder.hears('👍 ok', (ctx) => {
-  const { group } = ctx.session;
-  ctx.reply(`Listo, te recordaré todos los días a las 10AM del standup del equipo '${group.name}'`);
-
-  // TODO: set job
-
-  ctx.scene.leave();
-});
-reminder.hears('👎 me arrepentí', (ctx) => {
-  ctx.reply('No hay problema');
-  ctx.scene.leave();
-});
-reminder.hears(/.+/, (ctx) => {
-  const group = findGroupByName(ctx, ctx.match[0]);
-
-  if (group) {
-    ctx.session.group = group;
-
-    ctx.reply(`Listo, te recordaré todos los días a las 10AM del standup del equipo '${group.name}'`);
-
-    // TODO: set job
-
-    ctx.scene.leave();
-  } else {
-    ctx.reply('Lo siento, no entendí tu respuesta');
-  }
-});
-
 // Create scene manager
 const stage = new Stage();
 stage.command('cancel', leave());
 
 // Scene registration
-stage.register(reminder);
+stage.register(getReminderScene('reminder'));
 
 // Setup bot
 const bot = new Telegraf(TELEGRAM_TOKEN);
