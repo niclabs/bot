@@ -26,12 +26,17 @@ module.exports = (name) => {
     }
   });
   reminder.hears('👍 ok', (ctx) => {
-    const { fromGroup } = ctx.session;
+    const { fromGroup, user, privateCtx } = ctx.session;
     ctx.reply(
       `Listo, te recordaré todos los días a las 10AM del standup del equipo '${fromGroup.name}'`,
     );
 
-    // TODO: set job
+    // set job
+    user.schedule('standup', '* 0 10 * * mon-fri', () => {
+      ctx.session.fromGroup = fromGroup;
+
+      privateCtx.scene.enter('standup');
+    });
 
     ctx.scene.leave();
   });
@@ -40,14 +45,19 @@ module.exports = (name) => {
     ctx.scene.leave();
   });
   reminder.hears(/.+/, (ctx) => {
-    const group = findGroupByName(ctx, ctx.match[0]);
+    const { user, privateCtx } = ctx.session;
+    const fromGroup = findGroupByName(ctx, ctx.match[0]);
 
-    if (group) {
+    if (fromGroup) {
       ctx.reply(
-        `Listo, te recordaré todos los días a las 10AM del standup del equipo '${group.name}'`,
+        `Listo, te recordaré todos los días a las 10AM del standup del equipo '${fromGroup.name}'`,
       );
 
-      // TODO: set job
+      user.schedule('standup', '* 0 10 * * mon-fri', () => {
+        ctx.session.fromGroup = fromGroup;
+
+        privateCtx.scene.enter('standup');
+      });
 
       ctx.scene.leave();
     } else {
