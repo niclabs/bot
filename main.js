@@ -20,7 +20,7 @@ if (!TELEGRAM_TOKEN) {
 
 // Show help
 const help = (ctx) => {
-  ctx.replyWithMarkdown(`Puedes interactuar conmigo usando los siguientes comandos:
+  ctx.reply(`Puedes interactuar conmigo usando los siguientes comandos:
 
 - /help           mostrar esta ayuda
 - /standup        iniciar standup meeting
