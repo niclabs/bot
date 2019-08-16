@@ -66,6 +66,7 @@ function getStandupScene(name) {
       ) {
         ctx.reply(
           `Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`,
+          Markup.removeKeyboard(true).extra(),
         );
         ctx.scene.leave();
         return;
@@ -99,6 +100,7 @@ function getStandupScene(name) {
           `1. ¿Que hiciste ayer? 
           
 _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
+          Markup.removeKeyboard().extra(),
         );
         break;
       default:
@@ -107,7 +109,7 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
   });
 
   scene.hears(['👎 no, gracias', '😳 me arrepentí'], (ctx) => {
-    ctx.reply('No hay problema');
+    ctx.reply('No hay problema', Markup.removeKeyboard().extra());
     ctx.scene.leave();
   });
 
@@ -119,7 +121,7 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
         // Update session standup and post message
         ctx.session.standups[standup.group.id] = standup;
         standup.group.reply(standup.toString(), { parse_mode: 'Markdown' });
-        ctx.reply('Hecho!');
+        ctx.reply('Hecho!', Markup.removeKeyboard().extra());
 
         ctx.scene.leave();
         break;
@@ -146,6 +148,7 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
           ) {
             ctx.reply(
               `Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`,
+              Markup.removeKeyboard().extra(),
             );
             ctx.scene.leave();
             return;
@@ -158,6 +161,7 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
             `1. ¿Que hiciste ayer? 
             
 _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
+            Markup.removeKeyboard().extra(),
           );
         } else {
           ctx.reply('Lo siento, no entendí tu respuesta');

@@ -16,6 +16,7 @@ module.exports = (name) => {
         Markup.keyboard([['👍 ok', '👎 me arrepentí']])
           .resize()
           .oneTime()
+          .removeKeyboard()
           .extra(),
       );
     } else if (!showGroupSelector(ctx, 'Escoge un grupo para el recordatorio')) {
@@ -29,6 +30,7 @@ module.exports = (name) => {
     const { fromGroup, user, privateCtx } = ctx.session;
     ctx.reply(
       `Listo, te recordaré todos los días a las 10AM del standup del equipo '${fromGroup.name}'`,
+      Markup.removeKeyboard().extra(),
     );
 
     // set job
@@ -41,7 +43,7 @@ module.exports = (name) => {
     ctx.scene.leave();
   });
   reminder.hears('👎 me arrepentí', (ctx) => {
-    ctx.reply('No hay problema');
+    ctx.reply('No hay problema', Markup.removeKeyboard().extra());
     ctx.scene.leave();
   });
   reminder.hears(/.+/, (ctx) => {
@@ -51,6 +53,7 @@ module.exports = (name) => {
     if (fromGroup) {
       ctx.reply(
         `Listo, te recordaré todos los días a las 10AM del standup del equipo '${fromGroup.name}'`,
+        Markup.removeKeyboard().extra(),
       );
 
       user.schedule('standup', '* 0 10 * * mon-fri', () => {
