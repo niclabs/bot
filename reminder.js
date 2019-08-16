@@ -20,7 +20,7 @@ module.exports = (name) => {
       );
     } else if (!showGroupSelector(ctx, 'Escoge un grupo para el recordatorio')) {
       ctx.reply(
-        'Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando /reminder desde un grupo en donde yo esté',
+        `Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando ${ctx.message.text} desde un grupo en donde yo esté`,
       );
       ctx.scene.leave();
     }
