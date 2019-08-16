@@ -53,7 +53,7 @@ const register = (ctx) => {
   ctx.session.standups = standups;
 
   // Delete session group
-  delete ctx.session.group;
+  delete ctx.session.fromGroup;
 };
 
 const performCommandInPrivate = (ctx, cmd = () => {}) => {
@@ -61,7 +61,7 @@ const performCommandInPrivate = (ctx, cmd = () => {}) => {
   register(ctx);
 
   if (!isPrivateContext(ctx)) {
-    ctx.session.group = ctx.session.groups[ctx.chat.id];
+    ctx.session.fromGroup = ctx.session.groups[ctx.chat.id];
   }
 
   if (!isPrivateContext(ctx) && !ctx.session.privateCtx) {

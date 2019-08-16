@@ -8,11 +8,11 @@ module.exports = (name) => {
 
   // On enter scene
   reminder.enter((ctx) => {
-    const { group } = ctx.session;
+    const { fromGroup } = ctx.session;
 
-    if (group) {
+    if (fromGroup) {
       ctx.reply(
-        `Voy configurar un recordatorio para el equipo '${group.name}. ¿Está bien?'`,
+        `Voy configurar un recordatorio para el equipo '${fromGroup.name}. ¿Está bien?'`,
         Markup.keyboard([['👍 ok', '👎 me arrepentí']])
           .resize()
           .oneTime()
@@ -26,9 +26,9 @@ module.exports = (name) => {
     }
   });
   reminder.hears('👍 ok', (ctx) => {
-    const { group } = ctx.session;
+    const { fromGroup } = ctx.session;
     ctx.reply(
-      `Listo, te recordaré todos los días a las 10AM del standup del equipo '${group.name}'`,
+      `Listo, te recordaré todos los días a las 10AM del standup del equipo '${fromGroup.name}'`,
     );
 
     // TODO: set job
@@ -43,8 +43,6 @@ module.exports = (name) => {
     const group = findGroupByName(ctx, ctx.match[0]);
 
     if (group) {
-      ctx.session.group = group;
-
       ctx.reply(
         `Listo, te recordaré todos los días a las 10AM del standup del equipo '${group.name}'`,
       );
