@@ -139,6 +139,9 @@ bot.hears('👍 entiendo', (ctx) => {
     return;
   }
 
+  // save the private context just in case
+  ctx.session.privateCtx = ctx;
+
   // Call the next function
   ctx.session.cmd(ctx);
 
