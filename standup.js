@@ -80,7 +80,7 @@ function getStandupScene(name) {
       );
     } else if (!showGroupSelector(ctx, 'Escoge un grupo para hacer el standup')) {
       ctx.reply(
-        'Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando /standup desde un grupo en donde yo esté',
+        `Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando ${ctx.message.text} desde un grupo en donde yo esté`,
       );
       ctx.scene.leave();
     }
