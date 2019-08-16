@@ -1,9 +1,15 @@
-const WizardScene = require('telegraf/scenes/wizard');
+const Scene = require('telegraf/scenes/base');
 const Markup = require('telegraf/markup');
 
+const {
+  showGroupSelector, findGroupByName, strdate, nomarkdown,
+} = require('./utils');
+
 class Standup {
-  constructor(user) {
+  constructor(user, group, date = new Date()) {
     this.user = user;
+    this.group = group;
+    this.date = date;
   }
 
   yesterday(answer) {
@@ -18,74 +24,194 @@ class Standup {
     this.obstacles = answer;
   }
 
-  msg(msg, extra = {}) {
-    this.user.replyToUser(msg, extra);
+  toString() {
+    return `Standup de @${nomarkdown(this.user.name)} para ${
+      strdate(this.date) === strdate(new Date()) ? 'hoy' : strdate(this.date)
+    }
+
+*¿Que hiciste ayer?*
+${this.yesterday || '-'}
+
+*¿Que harás hoy?*
+${this.today || '‍‍-'}
+
+*¿Tienes algún obstáculo para avanzar?*
+${this.obstacles || '-'}`;
   }
 }
 
-const StandupScene = (name) => new WizardScene(
-  name,
-  (ctx) => {
-    const { user } = ctx.session;
+function getStandupScene(name) {
+  const SceneStage = Object.freeze({
+    begin: Symbol('start'),
+    yesterday: Symbol('yesterday'),
+    today: Symbol('today'),
+    obstacles: Symbol('obstacles'),
+    confirm: Symbol('confirm'),
+  });
 
-    // Should never happen
-    if (!user) {
-      console.error('No user in scene context');
-      return ctx.scene.leave();
+  const scene = new Scene(name);
+
+  // On enter scene
+  scene.enter((ctx) => {
+    const { fromGroup, standups } = ctx.session;
+
+    // First stage
+    ctx.scene.state.stage = SceneStage.begin;
+
+    if (fromGroup) {
+      if (standups && fromGroup.id in standups && strdate(standups[fromGroup.id].date) === strdate()) {
+        ctx.reply(`Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`);
+        ctx.scene.leave();
+        return;
+      }
+
+      ctx.reply(
+        `Es hora de iniciar el standup para el equipo '${fromGroup.name}'. Son sólo 3 preguntas. ¿Vamos?'`,
+        Markup.keyboard([['👍 vamos!', '👎 no, gracias']])
+          .resize()
+          .oneTime()
+          .extra(),
+      );
+    } else if (!showGroupSelector(ctx, 'Escoge un grupo para hacer el standup')) {
+      ctx.reply(
+        'Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando /standup desde un grupo en donde yo esté',
+      );
+      ctx.scene.leave();
     }
+  });
 
-    ctx.session.standup = new Standup(user);
+  scene.hears('👍 vamos!', (ctx) => {
+    const { user, fromGroup } = ctx.session;
+    const { stage } = ctx.scene.state;
 
-    ctx.session.standup.msg(`1. ¿Que hiciste ayer?
-  
-  _Ojo: puedes responder en múltiples líneas usando Ctrl+Enter_`);
+    switch (stage) {
+      case SceneStage.begin:
+        ctx.scene.state.stage = SceneStage.yesterday;
+        ctx.scene.state.standup = new Standup(user, fromGroup);
 
-    return ctx.wizard.next();
-  },
-  (ctx) => {
-    console.log('standup step 2');
-    ctx.session.standup.yesterday(ctx.message.text);
+        ctx.replyWithMarkdown(
+          `1. ¿Que hiciste ayer? 
+          
+_Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
+        );
+        break;
+      default:
+        break;
+    }
+  });
 
-    ctx.session.standup.msg('2. ¿Que harás hoy?');
+  scene.hears(['👎 no, gracias', '😳 me arrepentí'], (ctx) => {
+    ctx.reply('No hay problema');
+    ctx.scene.leave();
+  });
 
-    return ctx.wizard.next();
-  },
-  (ctx) => {
-    ctx.session.standup.today(ctx.message.text);
+  scene.hears('👍 dale!', (ctx) => {
+    const { standup, stage } = ctx.scene.state;
 
-    ctx.session.standup.msg('3. ¿Tienes algún obstáculo para avanzar?');
+    switch (stage) {
+      case SceneStage.confirm:
+        // Update session standup and post message
+        ctx.session.standups[standup.group.id] = standup;
+        standup.group.reply(standup.toString(), { parse_mode: 'Markdown' });
+        ctx.reply('Hecho!');
 
-    return ctx.wizard.next();
-  },
-  (ctx) => {
-    ctx.session.standup.obstacles(ctx.message.text);
+        ctx.scene.leave();
+        break;
+      default:
+        break;
+    }
+  });
 
-    ctx.session.standup.msg(
-      `Gracias por tus respuestas.
-  
-  Procederé a postear el siguiente mensaje al grupo ${ctx.session.user.chat.title}
-  
-  *En que trabajé ayer*
-  ${ctx.session.standup.yesterday}
-  
-  *En que estaré trabajando hoy*
-  ${ctx.session.standup.yesterday}
-  
-  *¿Tienes algún obstáculo para avanzar?*
-  ${ctx.session.standup.obstacles}
-  
-  ¿Confirmas tus respuestas?
-      `,
-      Markup.inlineKeyboard([
-        Markup.callbackButton('😱noo', 'cancel').Markup.callbackButton('👍si, dale', 'next'),
-      ]).extra(),
-    );
+  scene.hears(/.+/, (ctx) => {
+    const { user, standups } = ctx.session;
+    const { standup, stage } = ctx.scene.state;
+    let fromGroup;
 
-    return ctx.wizard.next();
-  },
-  (ctx) => {
-    console.log(ctx.message.data);
-  },
-);
+    switch (stage) {
+      case SceneStage.begin:
+        // group selection
+        fromGroup = findGroupByName(ctx, ctx.match[0]);
 
-module.exports = StandupScene;
+        if (fromGroup) {
+          if (standups && fromGroup.id in standups && strdate(standups[fromGroup.id].date) === strdate()) {
+            ctx.reply(`Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`);
+            ctx.scene.leave();
+            return;
+          }
+
+          ctx.scene.state.stage = SceneStage.yesterday;
+          ctx.scene.state.standup = new Standup(user, fromGroup);
+
+          ctx.replyWithMarkdown(
+            `1. ¿Que hiciste ayer? 
+            
+_Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
+          );
+        } else {
+          ctx.reply('Lo siento, no entendí tu respuesta');
+        }
+        break;
+      case SceneStage.yesterday:
+        // Store previous stage answer
+        standup.yesterday(
+          ctx.message.text
+            .split('\n')
+            .map((s) => `- ${s.trim()}`)
+            .join('\n'),
+        );
+
+        // Next question
+        ctx.scene.state.stage = SceneStage.today;
+        ctx.reply('2. ¿Que harás hoy?');
+        break;
+      case SceneStage.today:
+        // Store previous stage answer
+        standup.today(
+          ctx.message.text
+            .split('\n')
+            .map((s) => `- ${s.trim()}`)
+            .join('\n'),
+        );
+
+        // Next question
+        ctx.scene.state.stage = SceneStage.obstacles;
+        ctx.scene.state.answer = [];
+        ctx.reply('3. ¿Tienes algún obstáculo para avanzar?');
+        break;
+      case SceneStage.obstacles:
+        standup.obstacles(
+          ctx.message.text
+            .split('\n')
+            .map((s) => `- ${s.trim()}`)
+            .join('\n'),
+        );
+
+        // Confirm
+        ctx.scene.state.stage = SceneStage.confirm;
+        delete ctx.scene.state.answer;
+        ctx.replyWithMarkdown(
+          `Postearé la siguiente respuesta al equipo '${nomarkdown(standup.group.name)}'
+
+${standup
+    .toString()
+    .split('\n')
+    .map((s) => `|  ${s.trim()}`)
+    .join('\n')}
+
+¿Confirmas tus respuestas?
+  `,
+          Markup.keyboard([['👍 dale!', '😳 me arrepentí']])
+            .resize()
+            .oneTime()
+            .extra(),
+        );
+        break;
+      default:
+        break;
+    }
+  });
+
+  return scene;
+}
+
+module.exports = getStandupScene;

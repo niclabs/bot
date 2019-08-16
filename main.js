@@ -8,6 +8,7 @@ const { leave } = Stage;
 const User = require('./user');
 const Group = require('./group');
 const getReminderScene = require('./reminder');
+const getStandupScene = require('./standup');
 
 const { isPrivateContext } = require('./utils');
 
@@ -94,6 +95,7 @@ stage.command('cancel', leave());
 
 // Scene registration
 stage.register(getReminderScene('reminder'));
+stage.register(getStandupScene('standup'));
 
 // Setup bot
 const bot = new Telegraf(TELEGRAM_TOKEN);
@@ -122,6 +124,12 @@ bot.help((ctx) => help(ctx));
 bot.command('auto_standup', (ctx) => {
   performCommandInPrivate(ctx, (privateCtx) => {
     privateCtx.scene.enter('reminder');
+  });
+});
+
+bot.command('standup', (ctx) => {
+  performCommandInPrivate(ctx, (privateCtx) => {
+    privateCtx.scene.enter('standup');
   });
 });
 
