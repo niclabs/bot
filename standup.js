@@ -41,8 +41,8 @@ ${this.obstacles || '-'}`;
 }
 
 function getStandupScene(name) {
-  const SceneStage = Object.freeze({
-    begin: Symbol('start'),
+  const StandupStage = Object.freeze({
+    begin: Symbol('begin'),
     yesterday: Symbol('yesterday'),
     today: Symbol('today'),
     obstacles: Symbol('obstacles'),
@@ -56,11 +56,17 @@ function getStandupScene(name) {
     const { fromGroup, standups } = ctx.session;
 
     // First stage
-    ctx.scene.state.stage = SceneStage.begin;
+    ctx.scene.state.stage = StandupStage.begin;
 
     if (fromGroup) {
-      if (standups && fromGroup.id in standups && strdate(standups[fromGroup.id].date) === strdate()) {
-        ctx.reply(`Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`);
+      if (
+        standups
+        && fromGroup.id in standups
+        && strdate(standups[fromGroup.id].date) === strdate()
+      ) {
+        ctx.reply(
+          `Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`,
+        );
         ctx.scene.leave();
         return;
       }
@@ -85,8 +91,8 @@ function getStandupScene(name) {
     const { stage } = ctx.scene.state;
 
     switch (stage) {
-      case SceneStage.begin:
-        ctx.scene.state.stage = SceneStage.yesterday;
+      case StandupStage.begin:
+        ctx.scene.state.stage = StandupStage.yesterday;
         ctx.scene.state.standup = new Standup(user, fromGroup);
 
         ctx.replyWithMarkdown(
@@ -109,7 +115,7 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
     const { standup, stage } = ctx.scene.state;
 
     switch (stage) {
-      case SceneStage.confirm:
+      case StandupStage.confirm:
         // Update session standup and post message
         ctx.session.standups[standup.group.id] = standup;
         standup.group.reply(standup.toString(), { parse_mode: 'Markdown' });
@@ -128,18 +134,24 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
     let fromGroup;
 
     switch (stage) {
-      case SceneStage.begin:
+      case StandupStage.begin:
         // group selection
         fromGroup = findGroupByName(ctx, ctx.match[0]);
 
         if (fromGroup) {
-          if (standups && fromGroup.id in standups && strdate(standups[fromGroup.id].date) === strdate()) {
-            ctx.reply(`Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`);
+          if (
+            standups
+            && fromGroup.id in standups
+            && strdate(standups[fromGroup.id].date) === strdate()
+          ) {
+            ctx.reply(
+              `Ya hiciste el standup de hoy para el equipo '${fromGroup.name}'. Felicitaciones!`,
+            );
             ctx.scene.leave();
             return;
           }
 
-          ctx.scene.state.stage = SceneStage.yesterday;
+          ctx.scene.state.stage = StandupStage.yesterday;
           ctx.scene.state.standup = new Standup(user, fromGroup);
 
           ctx.replyWithMarkdown(
@@ -151,7 +163,7 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
           ctx.reply('Lo siento, no entendí tu respuesta');
         }
         break;
-      case SceneStage.yesterday:
+      case StandupStage.yesterday:
         // Store previous stage answer
         standup.yesterday(
           ctx.message.text
@@ -161,10 +173,10 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
         );
 
         // Next question
-        ctx.scene.state.stage = SceneStage.today;
+        ctx.scene.state.stage = StandupStage.today;
         ctx.reply('2. ¿Que harás hoy?');
         break;
-      case SceneStage.today:
+      case StandupStage.today:
         // Store previous stage answer
         standup.today(
           ctx.message.text
@@ -174,11 +186,11 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
         );
 
         // Next question
-        ctx.scene.state.stage = SceneStage.obstacles;
+        ctx.scene.state.stage = StandupStage.obstacles;
         ctx.scene.state.answer = [];
         ctx.reply('3. ¿Tienes algún obstáculo para avanzar?');
         break;
-      case SceneStage.obstacles:
+      case StandupStage.obstacles:
         standup.obstacles(
           ctx.message.text
             .split('\n')
@@ -187,10 +199,10 @@ _Ojo: puedes usar Ctrl+enter para escribir mútiples líneas_`,
         );
 
         // Confirm
-        ctx.scene.state.stage = SceneStage.confirm;
+        ctx.scene.state.stage = StandupStage.confirm;
         delete ctx.scene.state.answer;
         ctx.replyWithMarkdown(
-          `Postearé la siguiente respuesta al equipo '${nomarkdown(standup.group.name)}'
+          `Escribiré la siguiente respuesta al equipo '${nomarkdown(standup.group.name)}'
 
 ${standup
     .toString()
