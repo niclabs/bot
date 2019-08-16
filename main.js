@@ -21,9 +21,9 @@ if (!TELEGRAM_TOKEN) {
 const help = (ctx) => {
   ctx.replyWithMarkdown(`Puedes interactuar conmigo usando los siguientes comandos:
 
-- /help       mostrar esta ayuda
-- /standup    iniciar standup meeting
-- /reminder   suscribirse a recordatorios para el standup`);
+- /help           mostrar esta ayuda
+- /standup        iniciar standup meeting
+- /auto_standup   configurar standups automáticos todos los días a las 10AM`);
 };
 
 const register = (ctx) => {
@@ -119,7 +119,7 @@ bot.start((ctx) => welcome(ctx));
 // /help command
 bot.help((ctx) => help(ctx));
 
-bot.command('reminder', (ctx) => {
+bot.command('auto_standup', (ctx) => {
   performCommandInPrivate(ctx, (privateCtx) => {
     privateCtx.scene.enter('reminder');
   });
