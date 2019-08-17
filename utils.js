@@ -23,7 +23,6 @@ const nomarkdown = (s) => s
 
 const isPrivateContext = (ctx) => !ctx.chat || ctx.chat.id === ctx.from.id;
 
-
 const showGroupSelector = (ctx, msg = 'Escoge un grupo') => {
   const { groups } = ctx.session;
 
@@ -50,4 +49,6 @@ const findGroupByName = (ctx, name) => {
     .find((group) => group.name === name);
 };
 
-module.exports = { strdate, nomarkdown, isPrivateContext, showGroupSelector, findGroupByName };
+module.exports = {
+  strdate, nomarkdown, isPrivateContext, showGroupSelector, findGroupByName,
+};
