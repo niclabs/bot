@@ -12,12 +12,6 @@ const getStandupScene = require('./standup');
 
 const { isPrivateContext } = require('./utils');
 
-const { TELEGRAM_TOKEN } = process.env;
-if (!TELEGRAM_TOKEN) {
-  console.error('Please set the TELEGRAM_TOKEN environment variable');
-  process.exit(1);
-}
-
 // Show help
 const help = (ctx) => {
   ctx.reply(`Puedes interactuar conmigo usando los siguientes comandos:
@@ -98,7 +92,7 @@ stage.register(getReminderScene('reminder'));
 stage.register(getStandupScene('standup'));
 
 // Setup bot
-const bot = new Telegraf(TELEGRAM_TOKEN);
+const bot = new Telegraf();
 
 // Configure a unique session key for all user interactions
 bot.use(
@@ -149,4 +143,4 @@ bot.hears('👍 entiendo', (ctx) => {
   delete ctx.session.cmd;
 });
 
-bot.launch();
+module.exports = bot;
