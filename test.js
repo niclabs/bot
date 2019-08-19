@@ -24,9 +24,9 @@ test.sendCommand = (command) => test.sendMessage({
   entities: [{ type: 'bot_command', offset: 0, length: command.length }],
 });
 
-// bot.startWebhook('/secret-path', null, 8888);
+bot.startWebhook('/secret-path', null, 8888);
 // Start webhook via launch (preffered)
-bot.launch({
+//bot.launch({
 //   webhook: {
 //     domain: 'http://127.0.0.1:8888',
 //     port: 8888,
