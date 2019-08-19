@@ -1,7 +1,7 @@
 FROM node:8-alpine
 LABEL maintainer="Felipe Lalanne <flalanne@niclabs.cl>"
 
-ENV PRODUCTION=false
+ARG PRODUCTION=false
 
 # Install dependencies
 RUN npm install -g yarn && mkdir -p /opt/bot
