@@ -79,7 +79,7 @@ const welcome = (ctx) => {
 
   ctx.telegram.sendMessage(
     ctx.from.id,
-    `Hola @${ctx.from.username}! Un gusto de conocerte, ni nombre es soy @${ctx.me}. Si quieres saber más de mi puedes usar el comando /help`,
+    `Hola @${ctx.from.username}! Un gusto de conocerte, ni nombre es @${ctx.me}. Si quieres saber más de mi puedes usar el comando /help`,
   );
 };
 
