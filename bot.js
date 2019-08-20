@@ -17,8 +17,7 @@ const help = (ctx) => {
   ctx.reply(`Puedes interactuar conmigo usando los siguientes comandos:
 
 - /help       mostrar esta ayuda
-- /standup    iniciar standup meeting
-- /remindme   configurar standups automáticos todos los días a las 10AM`);
+- /standup    iniciar standup meeting`);
 };
 
 const register = (ctx) => {
@@ -114,12 +113,6 @@ bot.start((ctx) => welcome(ctx));
 
 // /help command
 bot.help((ctx) => help(ctx));
-
-bot.command('remindme', (ctx) => {
-  performCommandInPrivate(ctx, (privateCtx) => {
-    privateCtx.scene.enter('reminder');
-  });
-});
 
 bot.command('standup', (ctx) => {
   performCommandInPrivate(ctx, (privateCtx) => {
