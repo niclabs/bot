@@ -2090,15 +2090,6 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
-telegraf-test@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/telegraf-test/-/telegraf-test-1.1.1.tgz#6916db67db0ab56e4b0d33dbddacdef039d80bf4"
-  integrity sha512-4vqIiuMJpM4aVpbfDP7QmEci86jMgvUEcH+fKXT5qePOU0xQRj48YrbsEPXR+PWkwjB2TLK/mYIuwkF98jyVJA==
-  dependencies:
-    axios "^0.19.0"
-    debug "^4.1.1"
-    express "^4.17.1"
-
 "telegraf-test@https://github.com/pipex/Telegraf-Test.git":
   version "1.1.1"
   resolved "https://github.com/pipex/Telegraf-Test.git#21f65ac8c66c2a7611a1ceadb09cb22f71a2d3ca"
