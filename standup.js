@@ -79,7 +79,7 @@ function getStandupScene(name) {
           .oneTime()
           .extra(),
       );
-    } else if (!showGroupSelector(ctx, 'Escoge un grupo para hacer el standup')) {
+    } else if (!showGroupSelector(ctx, 'Escoge un grupo para hacer el standup o usa /cancel para cancelar')) {
       ctx.reply(
         `Aun no te tengo registrado en ningún equipo 😥. Prueba ejecutando el comando ${ctx.message.text} desde un grupo en donde yo esté`,
       );
