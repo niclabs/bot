@@ -17,7 +17,8 @@ const help = (ctx) => {
   ctx.reply(`Puedes interactuar conmigo usando los siguientes comandos:
 
 - /help       mostrar esta ayuda
-- /standup    iniciar standup meeting`);
+- /standup    iniciar standup meeting
+- /cancel     cancelar el comando en curso`);
 };
 
 const register = (ctx) => {
@@ -84,7 +85,10 @@ const welcome = (ctx) => {
 
 // Create scene manager
 const stage = new Stage();
-stage.command('cancel', leave());
+stage.command('cancel', (ctx) => {
+  ctx.reply('OK', Markup.removeKeyboard().extra());
+  return leave();
+});
 
 // Scene registration
 stage.register(getReminderScene('reminder'));
