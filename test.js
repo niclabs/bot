@@ -6,7 +6,7 @@ const bot = require('./bot');
 // Configure tests
 const test = new TelegrafTest({ url: 'http://127.0.0.1:8888/secret-path' });
 
-async function setUp() {
+async function launch() {
   // Start telegraf-test web server
   await test.startServer();
 
@@ -48,4 +48,4 @@ describe('General functions', () => {
 });
 
 // Launch tests
-setUp();
+launch();
