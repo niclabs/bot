@@ -35,15 +35,25 @@ test.sendCommand = (command) => test.sendMessage({
   entities: [{ type: 'bot_command', offset: 0, length: command.length }],
 });
 
-describe('General functions', () => {
-  describe('/start', () => {
-    it('should welcome user by name on start', async () => {
-      const response = await test.sendCommand('/start');
-      assert.strictEqual(
-        response.data.text,
-        'Hola @testuser! Un gusto de conocerte, ni nombre es @testbot. Si quieres saber más de mi puedes usar el comando /help',
-      );
-    });
+describe('/start', () => {
+  it('should welcome user by name on start', async () => {
+    const response = await test.sendCommand('/start');
+    assert.strictEqual(
+      response.data.text,
+      'Hola @testuser! Un gusto de conocerte, ni nombre es @testbot. Si quieres saber más de mi puedes usar el comando /help',
+    );
+  });
+});
+
+describe('/help', () => {
+  it('should show help message', async () => {
+    const response = await test.sendCommand('/help');
+    if (
+      !response.data.text
+      || !response.data.text.includes('Puedes interactuar conmigo usando los siguientes comandos')
+    ) {
+      assert.fail('Response should include help message');
+    }
   });
 });
 
