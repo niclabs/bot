@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --exit"
+    "test": "mocha --exit --delay"
   },
   "devDependencies": {
     "eslint": "^6.1.0",

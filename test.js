@@ -4,10 +4,21 @@ const assert = require('assert');
 const bot = require('./bot');
 
 // Configure tests
-bot.token = 'ABCD:1234567890';
-const test = new TelegrafTest({
-  url: 'http://127.0.0.1:8888/secret-path',
-});
+const test = new TelegrafTest({ url: 'http://127.0.0.1:8888/secret-path' });
+
+async function setUp() {
+  // Start telegraf-test web server
+  await test.startServer();
+
+  // Setup bot
+  bot.telegram.options.apiRoot = 'http://127.0.0.1:2000';
+  bot.token = 'ABCD:1234567890';
+
+  await bot.launch({ webhook: { hookPath: '/secret-path', port: 8888 } });
+
+  // Run mocha
+  run();
+}
 
 // Configure test user
 test.setUser({
@@ -24,16 +35,6 @@ test.sendCommand = (command) => test.sendMessage({
   entities: [{ type: 'bot_command', offset: 0, length: command.length }],
 });
 
-bot.startWebhook('/secret-path', null, 8888);
-// Start webhook via launch (preffered)
-//bot.launch({
-//   webhook: {
-//     domain: 'http://127.0.0.1:8888',
-//     port: 8888,
-//     hookPath: '/secret-path',
-//   },
-// });
-
 describe('General functions', () => {
   describe('/start', () => {
     it('should welcome user by name on start', async () => {
@@ -45,3 +46,6 @@ describe('General functions', () => {
     });
   });
 });
+
+// Launch tests
+setUp();
