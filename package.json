@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --exit --delay"
+    "test": "mocha --exit"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
@@ -16,7 +16,7 @@
     "eslint-plugin-import": "^2.18.2",
     "mocha": "^6.2.0",
     "prettier-eslint": "^9.0.0",
-    "telegraf-test": "https://github.com/pipex/Telegraf-Test.git"
+    "telegram-test-api": "https://github.com/pipex/telegram-test-api.git"
   },
   "dependencies": {
     "node-schedule": "^1.3.2",

@@ -1,61 +1,58 @@
-const TelegrafTest = require('telegraf-test');
 const assert = require('assert');
 
+const TelegramServer = require('../telegram-test-api');
 const bot = require('./bot');
 
-// Configure tests
-const test = new TelegrafTest({ url: 'http://127.0.0.1:8888/secret-path' });
+describe('Testing bot', () => {
+  const serverConfig = { port: 9001 };
+  const token = 'noToken';
+  let server;
 
-async function launch() {
-  // Start telegraf-test web server
-  await test.startServer();
+  // disable console errors
+  console.error = () => {};
 
-  // Setup bot
-  bot.telegram.options.apiRoot = 'http://127.0.0.1:2000';
-  bot.token = 'ABCD:1234567890';
+  beforeEach(async () => {
+    server = new TelegramServer(serverConfig);
+    bot.telegram.options.apiRoot = server.ApiURL;
+    bot.token = token;
+    console.error = () => {};
+    await server.start();
+    await bot.launch();
+  });
 
-  await bot.launch({ webhook: { hookPath: '/secret-path', port: 8888 } });
+  afterEach(async () => {
+    await bot.stop();
+    await server.stop();
+  });
 
-  // Run mocha
-  run();
-}
+  it('should welcome user on /start', async () => {
+    const client = server.getClient(token);
+    await client.sendCommand(client.makeCommand('/start'));
+    const updates = await client.getUpdates();
+    if (updates.result.length !== 1) {
+      throw new Error('updates queue should contain one message!');
+    }
 
-// Configure test user
-test.setUser({
-  username: 'testuser',
-});
-
-// Configure bot details
-test.setBot({
-  username: 'testbot',
-});
-
-test.sendCommand = (command) => test.sendMessage({
-  text: command,
-  entities: [{ type: 'bot_command', offset: 0, length: command.length }],
-});
-
-describe('/start', () => {
-  it('should welcome user by name on start', async () => {
-    const response = await test.sendCommand('/start');
     assert.strictEqual(
-      response.data.text,
-      'Hola @testuser! Un gusto de conocerte, ni nombre es @testbot. Si quieres saber más de mi puedes usar el comando /help',
+      updates.result[0].message.text,
+      'Hola @testUserName! Un gusto de conocerte, ni nombre es @Test Name. Si quieres saber más de mi puedes usar el comando /help',
     );
   });
-});
 
-describe('/help', () => {
-  it('should show help message', async () => {
-    const response = await test.sendCommand('/help');
+  it('should show help message on /help', async () => {
+    const client = server.getClient(token);
+    await client.sendCommand(client.makeCommand('/help'));
+    const updates = await client.getUpdates();
+    if (updates.result.length !== 1) {
+      throw new Error('updates queue should contain one message!');
+    }
+
     if (
-      !response.data.text
-      || !response.data.text.includes('Puedes interactuar conmigo usando los siguientes comandos')
+      !updates.result[0].message.text.includes(
+        'Puedes interactuar conmigo usando los siguientes comandos',
+      )
     ) {
       assert.fail('Response should include help message');
     }
   });
 });
-
-// Launch tests
-launch();
