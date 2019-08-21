@@ -55,4 +55,20 @@ describe('Testing bot', () => {
       assert.fail('Response should include help message');
     }
   });
+
+  describe('Standup Meeting Scene', () => {
+    it('/standup called in group should reply in private chat', async () => {
+      // Get client for a group chat
+      const client = server.getClient(token, { chatId: 2, type: 'group' });
+      await client.sendCommand(client.makeCommand('/standup'));
+      const updates = await client.getUpdates();
+      if (updates.result.length !== 1) {
+        throw new Error('updates queue should contain one message!');
+      }
+
+      // Check that reply was in privaate chat
+      assert.strictEqual(updates.result[0].message.chat_id, 1);
+      assert.strictEqual(updates.result[0].message.text, 'Es hora de iniciar el standup para el equipo \'Test Name\'. Son sólo 3 preguntas. ¿Vamos?');
+    });
+  });
 });
