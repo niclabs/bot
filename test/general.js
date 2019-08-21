@@ -39,6 +39,25 @@ describe('General bot functionality', () => {
     );
   });
 
+  it('should welcome user in private when /start is called from group', async () => {
+    const client = server.getClient(token, { chatId: 2, type: 'group' });
+    await client.sendCommand(client.makeCommand('/start'));
+    const updates = await client.getUpdates();
+    if (updates.result.length !== 1) {
+      assert.fail('no reply for command /start');
+    }
+
+    const { message } = updates.result[0];
+
+    // Check that reply was in privaate chat
+    assert.strictEqual(message.chat_id, 1);
+
+    assert.strictEqual(
+      message.text,
+      'Hola @testUserName! Un gusto de conocerte, ni nombre es @Test Name. Si quieres saber más de mi puedes usar el comando /help',
+    );
+  });
+
   it('should show help message on /help', async () => {
     const client = server.getClient(token);
     await client.sendCommand(client.makeCommand('/help'));
