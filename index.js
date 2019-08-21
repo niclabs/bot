@@ -1,4 +1,4 @@
-const bot = require('./bot');
+const Bot = require('./bot');
 
 const { TELEGRAM_TOKEN } = process.env;
 if (!TELEGRAM_TOKEN) {
@@ -6,7 +6,6 @@ if (!TELEGRAM_TOKEN) {
   process.exit(1);
 }
 
-// Set token
-bot.token = process.env.TELEGRAM_TOKEN;
+const bot = new Bot(process.env.TELEGRAM_TOKEN);
 
 bot.launch();

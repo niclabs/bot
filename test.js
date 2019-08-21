@@ -1,20 +1,20 @@
 const assert = require('assert');
 
 const TelegramServer = require('../telegram-test-api');
-const bot = require('./bot');
+const Bot = require('./bot');
 
 describe('Testing bot', () => {
   const serverConfig = { port: 9001 };
   const token = 'noToken';
   let server;
+  let bot;
 
   // disable console errors
   console.error = () => {};
 
   beforeEach(async () => {
     server = new TelegramServer(serverConfig);
-    bot.telegram.options.apiRoot = server.ApiURL;
-    bot.token = token;
+    bot = new Bot(token, { telegram: { apiRoot: server.ApiURL } });
     console.error = () => {};
     await server.start();
     await bot.launch();

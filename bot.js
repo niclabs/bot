@@ -94,50 +94,53 @@ stage.command('cancel', (ctx) => {
 stage.register(getReminderScene('reminder'));
 stage.register(getStandupScene('standup'));
 
-// Setup bot
-const bot = new Telegraf();
+class Bot extends Telegraf {
+  constructor(token, options) {
+    super(token, options);
 
-// Configure a unique session key for all user interactions
-bot.use(
-  session({
-    getSessionKey: (ctx) => {
-      if (ctx.from) {
-        return `${ctx.from.id}:${ctx.from.id}`;
+    // Configure a unique session key for all user interactions
+    this.use(
+      session({
+        getSessionKey: (ctx) => {
+          if (ctx.from) {
+            return `${ctx.from.id}:${ctx.from.id}`;
+          }
+          return null;
+        },
+      }),
+    );
+
+    // Use the stage middleware
+    this.use(stage.middleware());
+
+    // /start command
+    this.start((ctx) => welcome(ctx));
+
+    // /help command
+    this.help((ctx) => help(ctx));
+
+    this.command('standup', (ctx) => {
+      performCommandInPrivate(ctx, (privateCtx) => {
+        privateCtx.scene.enter('standup');
+      });
+    });
+
+    // private confirmation
+    this.hears('👍 entiendo', (ctx) => {
+      if (!isPrivateContext(ctx) || !ctx.session.cmd) {
+        return;
       }
-      return null;
-    },
-  }),
-);
 
-// Use the stage middleware
-bot.use(stage.middleware());
+      // save the private context just in case
+      ctx.session.privateCtx = ctx;
 
-// /start command
-bot.start((ctx) => welcome(ctx));
+      // Call the next function
+      ctx.session.cmd(ctx);
 
-// /help command
-bot.help((ctx) => help(ctx));
-
-bot.command('standup', (ctx) => {
-  performCommandInPrivate(ctx, (privateCtx) => {
-    privateCtx.scene.enter('standup');
-  });
-});
-
-// private confirmation
-bot.hears('👍 entiendo', (ctx) => {
-  if (!isPrivateContext(ctx) || !ctx.session.cmd) {
-    return;
+      // Delete the command
+      delete ctx.session.cmd;
+    });
   }
+}
 
-  // save the private context just in case
-  ctx.session.privateCtx = ctx;
-
-  // Call the next function
-  ctx.session.cmd(ctx);
-
-  // Delete the command
-  delete ctx.session.cmd;
-});
-
-module.exports = bot;
+module.exports = Bot;
