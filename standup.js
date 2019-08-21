@@ -73,7 +73,7 @@ function getStandupScene(name) {
       }
 
       ctx.reply(
-        `Es hora de iniciar el standup para el equipo '${fromGroup.name}'. Son sólo 3 preguntas. ¿Vamos?'`,
+        `Es hora de iniciar el standup para el equipo '${fromGroup.name}'. Son sólo 3 preguntas. ¿Vamos?`,
         Markup.keyboard([['👍 vamos!', '👎 no, gracias']])
           .resize()
           .oneTime()
