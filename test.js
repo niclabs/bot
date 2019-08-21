@@ -30,7 +30,7 @@ describe('Bot test suite', () => {
     await client.sendCommand(client.makeCommand('/start'));
     const updates = await client.getUpdates();
     if (updates.result.length !== 1) {
-      throw new Error('updates queue should contain one message!');
+      assert.fail('no reply for command /start');
     }
 
     assert.strictEqual(
@@ -44,7 +44,7 @@ describe('Bot test suite', () => {
     await client.sendCommand(client.makeCommand('/help'));
     const updates = await client.getUpdates();
     if (updates.result.length !== 1) {
-      throw new Error('updates queue should contain one message!');
+      assert.fail('no reply for command /help');
     }
 
     if (
