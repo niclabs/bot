@@ -3,7 +3,7 @@ const assert = require('assert');
 const TelegramServer = require('../telegram-test-api');
 const Bot = require('./bot');
 
-describe('Testing bot', () => {
+describe('Bot test suite', () => {
   const serverConfig = { port: 9001 };
   const token = 'noToken';
   let server;
