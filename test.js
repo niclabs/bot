@@ -56,19 +56,37 @@ describe('Bot test suite', () => {
     }
   });
 
-  describe('Standup Meeting Scene', () => {
-    it('/standup called in group should reply in private chat', async () => {
-      // Get client for a group chat
-      const client = server.getClient(token, { chatId: 2, type: 'group' });
-      await client.sendCommand(client.makeCommand('/standup'));
-      const updates = await client.getUpdates();
-      if (updates.result.length !== 1) {
-        throw new Error('updates queue should contain one message!');
-      }
+  it('/standup called in group should reply in private chat', async () => {
+    // Get client for a group chat
+    const client = server.getClient(token, { chatId: 2, type: 'group' });
+    await client.sendCommand(client.makeCommand('/standup'));
+    let updates = await client.getUpdates();
+    if (updates.result.length !== 1) {
+      assert.fail('no reply for command /standup');
+    }
 
-      // Check that reply was in privaate chat
-      assert.strictEqual(updates.result[0].message.chat_id, 1);
-      assert.strictEqual(updates.result[0].message.text, 'Es hora de iniciar el standup para el equipo \'Test Name\'. Son sólo 3 preguntas. ¿Vamos?');
-    });
+    let { message } = updates.result[0];
+
+    // Check that reply was in privaate chat
+    assert.strictEqual(message.chat_id, 1);
+
+    // First time it should ask the user to confirm private context
+    assert.strictEqual(
+      message.text,
+      'Para evitar el spam prefiero ejecutar el comando /standup en privado. ¿Está bien?',
+    );
+
+    const privateClient = server.getClient(token);
+    await privateClient.sendMessage(privateClient.makeMessage(message.reply_markup.keyboard[0][0]));
+
+    updates = await privateClient.getUpdates();
+    if (updates.result.length !== 1) {
+      assert.fail('no reply to private chat request answer');
+    }
+    [{ message }] = updates.result;
+    assert.strictEqual(
+      message.text,
+      "Es hora de iniciar el standup para el equipo 'Test Name'. Son sólo 3 preguntas. ¿Vamos?",
+    );
   });
 });
