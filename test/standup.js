@@ -25,16 +25,30 @@ describe('Standup meeting launch', () => {
     await server.stop();
   });
 
+  const sendCommand = async (client, cmd) => {
+    await client.sendCommand(client.makeCommand(cmd));
+    const updates = await client.getUpdates();
+    if (updates.result.length !== 1) {
+      assert.fail(`no reply for command ${cmd}`);
+    }
+
+    return updates.result[0].message;
+  };
+
+  const sendMessage = async (client, msg) => {
+    await client.sendMessage(client.makeMessage(msg));
+    const updates = await client.getUpdates();
+    if (updates.result.length !== 1) {
+      assert.fail(`no reply for message ${JSON.stringify(msg)}`);
+    }
+
+    return updates.result[0].message;
+  };
+
   it('should reply in private chat when called from group', async () => {
     // Get client for a group chat
     const client = server.getClient(token, { chatId: 2, type: 'group' });
-    await client.sendCommand(client.makeCommand('/standup'));
-    const updates = await client.getUpdates();
-    if (updates.result.length !== 1) {
-      assert.fail('no reply for command /standup');
-    }
-
-    const { message } = updates.result[0];
+    const message = await sendCommand(client, '/standup');
 
     // Check that reply was in privaate chat
     assert.strictEqual(message.chat_id, 1);
@@ -43,13 +57,7 @@ describe('Standup meeting launch', () => {
   it('should request confirmation the first time to get private context', async () => {
     // Get client for a group chat
     const groupClient = server.getClient(token, { chatId: 2, type: 'group' });
-    await groupClient.sendCommand(groupClient.makeCommand('/standup'));
-    let updates = await groupClient.getUpdates();
-    if (updates.result.length !== 1) {
-      assert.fail('no reply for command /standup');
-    }
-
-    let { message } = updates.result[0];
+    let message = await sendCommand(groupClient, '/standup');
 
     // Check that reply was in privaate chat
     assert.strictEqual(message.chat_id, 1);
@@ -61,14 +69,7 @@ describe('Standup meeting launch', () => {
     );
 
     const privateClient = server.getClient(token);
-    await privateClient.sendMessage(privateClient.makeMessage(message.reply_markup.keyboard[0][0]));
-
-    updates = await groupClient.getUpdates();
-    if (updates.result.length !== 1) {
-      assert.fail('no reply for command /standup');
-    }
-
-    [{ message }] = updates.result;
+    message = await sendMessage(privateClient, message.reply_markup.keyboard[0][0]);
     assert.strictEqual(
       message.text,
       "Es hora de iniciar el standup para el equipo 'Test Name'. Son sólo 3 preguntas. ¿Vamos?",
@@ -78,13 +79,7 @@ describe('Standup meeting launch', () => {
   it('should reply with error message when no group information is available', async () => {
     // Get client for a group chat
     const client = server.getClient(token);
-    await client.sendCommand(client.makeCommand('/standup'));
-    const updates = await client.getUpdates();
-    if (updates.result.length !== 1) {
-      assert.fail('no reply for command /standup');
-    }
-
-    const { message } = updates.result[0];
+    const message = await sendCommand(client, '/standup');
 
     // Check that reply was in privaate chat
     assert.strictEqual(message.chat_id, 1, 'expected private chat id');
@@ -99,13 +94,7 @@ describe('Standup meeting launch', () => {
   it('should reply with group list when user has identified', async () => {
     // Get client for a group chat
     const groupClient = server.getClient(token, { chatId: 2, type: 'group' });
-    await groupClient.sendCommand(groupClient.makeCommand('/start'));
-    let updates = await groupClient.getUpdates();
-    if (updates.result.length !== 1) {
-      assert.fail('no reply for command /start');
-    }
-
-    let { message } = updates.result[0];
+    let message = await sendCommand(groupClient, '/start');
 
     // Check that reply was in privaate chat
     assert.strictEqual(message.chat_id, 1);
@@ -116,13 +105,7 @@ describe('Standup meeting launch', () => {
     );
 
     const privateClient = server.getClient(token);
-    await privateClient.sendCommand(privateClient.makeCommand('/standup'));
-    updates = await groupClient.getUpdates();
-    if (updates.result.length !== 1) {
-      assert.fail('no reply for command /standup');
-    }
-
-    [{ message }] = updates.result;
+    message = await sendCommand(privateClient, '/standup');
     assert.strictEqual(
       message.text,
       'Escoge un grupo para hacer el standup o usa /cancel para cancelar',
@@ -134,5 +117,33 @@ describe('Standup meeting launch', () => {
       'expected array with a single group',
     );
     assert.strictEqual(message.reply_markup.keyboard[0][0], 'Test Name');
+  });
+
+  it('should start standup in private list when user has identified', async () => {
+    // Get client for a group chat
+    const privateClient = server.getClient(token);
+    let message = await sendCommand(privateClient, '/start');
+
+    // Check that reply was in privaate chat
+    assert.strictEqual(message.chat_id, 1);
+
+    assert.strictEqual(
+      message.text,
+      'Hola @testUserName! Un gusto de conocerte, ni nombre es @Test Name. Si quieres saber más de mi puedes usar el comando /help',
+    );
+
+    const groupClient = server.getClient(token, { chatId: 2, type: 'group' });
+    message = await sendCommand(groupClient, '/standup');
+    assert.strictEqual(
+      message.text,
+      "Es hora de iniciar el standup para el equipo 'Test Name'. Son sólo 3 preguntas. ¿Vamos?",
+    );
+
+    assert.strictEqual(
+      message.reply_markup.keyboard[0].length,
+      2,
+      'expected array with two options',
+    );
+    assert.strictEqual(message.reply_markup.keyboard[0][0], '👍 vamos!');
   });
 });
