@@ -12,6 +12,4 @@ node_modules/
 LICENSE
 README.md
 yarn-error.log*
-yarn.lock
-package-lock.json
 .vscode
