@@ -1,0 +1,22 @@
+# Setup environment for Docker
+language: generic
+notifications:
+  email: false
+
+# The test script for each build
+script:
+  # Build docker image
+  - >
+  docker build -t $DOCKER_IMG . ;
+  if [ $? != 0 ]; then
+    echo "Failed to build Docker image"
+    exit 1
+  fi
+  if [ $TRAVIS_SECURE_ENV_VARS == true ] && [ $TRAVIS_PULL_REQUEST == false ]; then
+    echo "This build is for an update of branch master. Push image to Dockerhub"
+    echo $DOCKERHUB_PASSWD | docker login --username $DOCKERHUB_USER --password-stdin
+    docker push $DOCKER_IMG;
+  fi
+env:
+  global: 
+    - DOCKER_IMG=niclabs/bot
