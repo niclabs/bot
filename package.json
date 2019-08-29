@@ -2,7 +2,7 @@
   "name": "niclabs-bot",
   "version": "0.1.2",
   "description": "NIC Labs Telegram Bot",
-  "main": "bot.js",
+  "main": "bot",
   "repository": "git@github.com:niclabs/bot.git",
   "author": "Felipe Lalanne <flalanne@niclabs.cl>",
   "license": "Apache-2.0",
