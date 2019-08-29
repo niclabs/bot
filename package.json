@@ -1,6 +1,6 @@
 {
   "name": "niclabs-bot",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "NIC Labs Telegram Bot",
   "main": "bot",
   "repository": "git@github.com:niclabs/bot.git",
