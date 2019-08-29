@@ -4,18 +4,17 @@ notifications:
   email: false
 
 # The test script for each build
-script:
-  # Build docker image
-  - >
-    docker build -t $DOCKER_IMG .;
+script: |
+    echo "Building $DOCKER_IMG"
+    docker build -t $DOCKER_IMG .
     if [ $? != 0 ]; then
       echo "Failed to build Docker image"
       exit 1
-    fi
+    fi;
     if [ $TRAVIS_SECURE_ENV_VARS == true ] && [ -z "$TRAVIS_TAG" ]; then
       echo "New tag $TRAVIS_TAG. Push image to Dockerhub"
       echo $DOCKERHUB_PASSWD | docker login --username $DOCKERHUB_USER --password-stdin
-      docker push $DOCKER_IMG;
+      docker push $DOCKER_IMG
     fi
 env:
   global:
