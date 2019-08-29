@@ -2105,9 +2105,10 @@ telegraf@^3.32.0:
     sandwich-stream "^2.0.1"
     telegram-typings "^3.6.0"
 
-"telegram-test-api@https://github.com/pipex/telegram-test-api.git":
-  version "2.3.0"
-  resolved "https://github.com/pipex/telegram-test-api.git#e93877c0ed2f94a55c94f1765168e197327de841"
+telegram-test-api@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/telegram-test-api/-/telegram-test-api-2.3.1.tgz#f57376fa6247c05112b929b1d02d917c68a9b0c7"
+  integrity sha512-bDnf5XEMjj/Ysz67yprWDdVsR+lx2vlBzJ28OcK8qmHbcKDG/rHTUcj8Ez9gu/N5bGL7zcISM/5/AMAz1yOLLw==
   dependencies:
     axios "~0.19.0"
     bluebird "~3.5.5"
