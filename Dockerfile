@@ -2,9 +2,7 @@ FROM node:8-alpine as tests
 LABEL maintainer="Felipe Lalanne <flalanne@niclabs.cl>"
 
 # Install dependencies
-RUN apk update && \
-    apk add git && \
-    npm install -g yarn && \
+RUN npm install -g yarn && \
     mkdir -p /opt/bot
 
 ADD . /opt/bot
@@ -21,9 +19,7 @@ FROM node:8-alpine
 WORKDIR /opt/bot
 
 # Install dependencies
-RUN apk update && \
-    apk add git && \
-    npm install -g yarn && \
+RUN npm install -g yarn && \
     mkdir -p /opt/bot/bot
 
 COPY --from=tests /opt/bot/*.js /opt/bot/
