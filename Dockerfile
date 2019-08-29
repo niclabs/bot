@@ -24,10 +24,10 @@ WORKDIR /opt/bot
 RUN apk update && \
     apk add git && \
     npm install -g yarn && \
-    mkdir -p /opt/bot
+    mkdir -p /opt/bot/bot
 
 COPY --from=tests /opt/bot/*.js /opt/bot/
-COPY --from=tests /opt/bot/bot /opt/bot/
+COPY --from=tests /opt/bot/bot/*.js /opt/bot/bot/
 COPY --from=tests /opt/bot/package.json /opt/bot/
 COPY --from=tests /opt/bot/yarn.lock /opt/bot/
 
