@@ -11,7 +11,7 @@
     "start": "node index.js",
     "test": "mocha --exit",
     "build": "yarn lint && yarn test",
-    "prepublish": "yarn build"
+    "preversion": "yarn build"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
