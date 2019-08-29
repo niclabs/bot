@@ -61,5 +61,8 @@ typings/
 .next
 
 
-# VSCode
+# Software
 .vscode
+*.swp
+*.swo
+.DS_Store
