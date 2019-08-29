@@ -15,7 +15,7 @@ script: |
     if [ $TRAVIS_SECURE_ENV_VARS == true ] && [ -n "$TRAVIS_TAG" ]; then
       echo "New tag $TRAVIS_TAG. Push image to Dockerhub"
       echo $DOCKERHUB_PASSWD | docker login --username $DOCKERHUB_USER --password-stdin
-      docker tag $DOCKER_IMG:latest $DOCKER_IMAGE:$TRAVIS_TAG
+      docker tag $DOCKER_IMG:latest $DOCKER_IMG:$TRAVIS_TAG
       docker push $DOCKER_IMG:latest
       docker push $DOCKER_IMG:$TRAVIS_TAG
     fi
