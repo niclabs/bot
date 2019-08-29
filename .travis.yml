@@ -12,8 +12,8 @@ script:
     echo "Failed to build Docker image"
     exit 1
   fi
-  if [ $TRAVIS_SECURE_ENV_VARS == true ] && [ $TRAVIS_PULL_REQUEST == false ]; then
-    echo "This build is for an update of branch master. Push image to Dockerhub"
+  if [ $TRAVIS_SECURE_ENV_VARS == true ] && [ -z "$TRAVIS_TAG" ]; then
+    echo "New tag $TRAVIS_TAG. Push image to Dockerhub"
     echo $DOCKERHUB_PASSWD | docker login --username $DOCKERHUB_USER --password-stdin
     docker push $DOCKER_IMG;
   fi
