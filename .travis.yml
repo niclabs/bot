@@ -5,6 +5,7 @@ notifications:
 
 # The test script for each build
 script: |
+    TRAVIS_TAG=$(echo $TRAVIS_TAG | cut -d v -f 2)
     echo "Building $DOCKER_IMG:latest"
     docker build -t $DOCKER_IMG:latest .;
     if [ $? != 0 ]; then
