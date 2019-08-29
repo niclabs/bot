@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.com/niclabs/bot.svg?branch=master)](https://travis-ci.com/niclabs/bot)
 
-# bot
+# Standup meeting Telegram bot
 
-Telegram Bot to perform daily standup meetings for each Telegram group (or team), the bot is added to. 
+Telegram Bot to perform daily standup meetings for each group (or team), the bot is added to. 
 
 For now the bot implements a single command `/standup`, which prompts the user with the 3 standup meeting questions
 
