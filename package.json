@@ -7,8 +7,11 @@
   "author": "Felipe Lalanne <flalanne@niclabs.cl>",
   "license": "Apache-2.0",
   "scripts": {
+    "lint": "eslint --color . --ext js",
     "start": "node index.js",
-    "test": "mocha --exit"
+    "test": "mocha --exit",
+    "build": "yarn lint && yarn test",
+    "prepublish": "yarn build"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
