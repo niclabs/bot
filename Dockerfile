@@ -27,6 +27,7 @@ RUN apk update && \
     mkdir -p /opt/bot
 
 COPY --from=tests /opt/bot/*.js /opt/bot/
+COPY --from=tests /opt/bot/bot /opt/bot/
 COPY --from=tests /opt/bot/package.json /opt/bot/
 COPY --from=tests /opt/bot/yarn.lock /opt/bot/
 
