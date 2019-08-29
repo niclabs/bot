@@ -13,8 +13,8 @@ WORKDIR /opt/bot
 # Install dependencies
 RUN yarn
 
-# Run tests
-RUN yarn test
+# Run linter and tests
+RUN yarn build
 
 FROM node:8-alpine
 
