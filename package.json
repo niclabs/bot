@@ -1,6 +1,6 @@
 {
   "name": "niclabs-bot",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "NIC Labs Telegram Bot",
   "main": "bot.js",
   "repository": "git@github.com:niclabs/bot.git",
@@ -11,7 +11,8 @@
     "start": "node index.js",
     "test": "mocha --exit",
     "build": "yarn lint && yarn test",
-    "preversion": "yarn build"
+    "preversion": "yarn build",
+    "postversion": "git push --tags"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
